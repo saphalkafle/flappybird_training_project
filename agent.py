@@ -11,7 +11,7 @@ import os
 import argparse
 import random
 
-if torch.backendmps.is_available():
+if torch.backends.mps.is_available():
     device = "mps"
 elif torch.cuda.is_available():
     device = "cuda"
@@ -31,7 +31,7 @@ class Agent:
 
 
         self.alpha = params["alpha"]
-        self.gamma = param_set["gamma"]
+        self.gamma = params["gamma"]
 
         self.epsilon_init = params["epsilon_init"]
         self.epsilon_min = params["epsilon_min"]
@@ -118,7 +118,7 @@ class Agent:
             
             if is_training:
                 #epsilon decay
-                epsilon =  max(epsilon * self.epsilon_decay , self.epsilon.min)
+                epsilon =  max(epsilon * self.epsilon_decay , self.epsilon_min)
 
                 if episode_reward > best_reward:
                     log_msg = f"best reward = {episode_reward} for episode = {episode + 1}"
@@ -147,7 +147,7 @@ class Agent:
         state = torch.stack(state)
         action = torch.stack(action)
         next_state = torch.stack(next_state)
-        rewards = torch.stack(rewards)
+        reward = torch.stack(reward)
         terminated = torch.tensor(terminated).float().to(device)
 
 
@@ -169,7 +169,7 @@ class Agent:
 
 if __name__ == "__main__":
     #parse command line inputs
-    parser = argparse.ArguementParser(description = "Train or test model.")
+    parser = argparse.ArgumentParser(description = "Train or test model.")
     parser.add_argument('hyperparameters',help='')
     parser.add_argument('--train',help = 'Training mode',action='store_true')
     args = parser.parse_args()
